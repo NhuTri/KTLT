@@ -132,6 +132,56 @@ void Eat() { // how to handle snake eating food
 	}
 }
 
+void move_snake(char key, int& move) { // determine the direction of the snake's movement
+	if (key == 'w' && move != 2) move = 1;
+	else if (key == 's' && move != 1) move = 2;
+	else if (key == 'a' && move != 4) move = 3;
+	else if (key == 'd' && move != 3) move = 4;
+}
+
+void animation_pass_gate(Point*& snake_point, char* snake_content, int move) { // create animation when snake goes through gate
+	int num_snake = *(int*)(snake_content - sizeof(int));
+	textColor(14, 5); gotoXY(snake_point[num_snake].x, snake_point[num_snake].y); cout << char(32);
+	while (true) {
+		snake_point[0].x = snake_point[1].x;
+		snake_point[0].y = snake_point[1].y;
+		for (int i = num_snake; i > 0; i--) {
+			snake_point[i].x = snake_point[i - 1].x;
+			snake_point[i].y = snake_point[i - 1].y;
+		}
+		textColor(14, 5); gotoXY(snake_point[num_snake].x, snake_point[num_snake].y); cout << char(32);
+		for (int i = 0; i < num_snake; i++) {
+			gotoXY(snake_point[i].x, snake_point[i].y);
+			if (i == 0) {
+				textColor(14, 4);
+			}
+			else {
+				textColor(14, 5);
+			}
+			cout << snake_content[i];
+		}
+		Sleep(250);
+		if (snake_point[0].x == snake_point[num_snake - 1].x && snake_point[0].y == snake_point[num_snake - 1].y) {
+			break;
+		}
+	}
+}
+
+void animation_die(Point*& snake_point, char* snake_content, int move) { // create an animation when the snake dies
+	int num_snake = *(int*)(snake_content - sizeof(int));
+	textColor(14, 5); gotoXY(snake_point[num_snake].x, snake_point[num_snake].y); cout << char(32);
+	for (int i = 0; i < 5; i++) {;
+		for (int j = num_snake - 1; j >= 0; j--) {
+			textColor(14, 4); gotoXY(snake_point[j].x, snake_point[j].y);
+			if (j == 0) cout << 'X';
+			else cout << ' ';
+		}
+		Sleep(250);
+		draw_snake(snake_content, snake_point, move);
+		Sleep(250);
+	}
+}
+
 // draw 
 // draw a wall or rectangle on the console screen
 void draw_wall(Point start, Point end, int type_wall, int backgound_color, int text_color, int background_wall_color = 11, int text_wall_color = 9) { 
@@ -253,4 +303,5 @@ void game_over(Point point_start, Point point_end, bool& end_while, Sound sound)
 		}
 	}
 }
+
 
