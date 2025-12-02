@@ -18,21 +18,21 @@ typedef struct POINT_POINT {
 	int y;
 }Point;
 
-//Hang so 
+//constant 
 #define MAX_SIZE_SNAKE 10
 #define MAX_SIZE_FOOD 4
 #define MAX_SPEED 3
 
-//Bien toan cuc 
-POINT snake[10]; //ran 
-POINT food[4]; // thuc an
-int CHAR_LOCK; // duoc su dung de xac dinh huong ma con ran cua toi khong the di chuyen (Tai mot thoi diem, co mot huong ma con ran cua toi khong the di chuyen toi) 
-int MOVING;// duoc su dung de xac dinh huong di chuyen cua con ran (Tai mot thoi diem, co 3 huong ma con ran cua toi co the di chuyen)
-int SPEED;// Viet tat cua level, level cang cao thi toc do cang nhanh  
-int HEIGH_CONSOLE, WIDTH_CONSOLE;// Chieu rong va chieu cao cua man hinh dieu khien 
-int FOOD_INDEX; // Chi muc thuc pham hien tai  
-int SIZE_SNAKE; // Kich thuoc cua con ran, ban dau co the la 6 don vi va kich thuoc toi da co the la 10 
-int STATE; // Trang thai cua con ran: chet hoac song 
+//Global variables
+POINT snake[10]; //snake
+POINT food[4]; // food
+int CHAR_LOCK; // used to determine the direction my snake cannot move (At one point, there was a direction my snake could not move to)
+int MOVING;// used to determine the direction of movement of the snake (At any given time, there are 3 directions that my snake can move)
+int SPEED;// Abbreviation of level, the higher the level the faster the speed  
+int HEIGH_CONSOLE, WIDTH_CONSOLE;// Width and height of the monitor screen
+int FOOD_INDEX; //Current food index  
+int SIZE_SNAKE; // The size of the snake, initially can be 6 units and the maximum size can be 10
+int STATE; // The state of the snake: dead or alive
 
 enum Sound { on, off }; // manage game audio status
 
@@ -253,3 +253,4 @@ void game_over(Point point_start, Point point_end, bool& end_while, Sound sound)
 		}
 	}
 }
+
