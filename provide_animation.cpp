@@ -84,6 +84,85 @@ void sound_exit() { // play background music when player exits or at game end/ex
 	PlaySound(TEXT("exit.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
 }
 
+// draw 
+// draw a wall or rectangle on the console screen
+void draw_wall(Point start, Point end, int type_wall, int backgound_color, int text_color, int background_wall_color = 11, int text_wall_color = 9) { 
+	textColor(background_wall_color, text_wall_color);
+	for (int y = start.y; y <= end.y; y++) {
+		gotoXY(start.x - 1, y);
+		cout << char(type_wall) << char(type_wall);
+	}
+	for (int x = start.x; x <= end.x; x++) {
+		gotoXY(x, end.y);
+		cout << char(type_wall);
+	}
+	for (int y = end.y; y >= start.y; y--) {
+		gotoXY(end.x, y);
+		cout << char(type_wall) << char(type_wall);
+	}
+	for (int x = end.x; x >= start.x; x--) {
+		gotoXY(x, start.y);
+		cout << char(type_wall);
+	}
+	for (int x = start.x + 1; x <= end.x - 1; x++) {
+		for (int y = start.y + 1; y <= end.y - 1; y++) {
+			textColor(backgound_color, text_color);
+			gotoXY(x, y);
+			cout << ' ';
+		}
+	}
+}
+
+void draw_gameover(Point point_start_box, Point point_end_box, int answer) { // Draw a Game Over screen on the console, with a menu to select “Yes” or “No”
+	char play_again_1[] = { char(219),char(223),char(223),char(219),char(32),char(219),char(32),char(32),char(219),char(223),char(223),char(220),char(32),char(219),char(32),char(32),char(219),char(32),char(32),char(32),char(219),char(223),char(223),char(220),char(32),char(219),char(223),char(223),char(223),char(32),char(219),char(223),char(223),char(220),char(32),char(32),char(223),char(32),char(32),char(219),char(223),char(223),char(220),'\0' };
+	char play_again_2[] = { char(219),char(220),char(220),char(219),char(32),char(219),char(32),char(32),char(219),char(220),char(220),char(219),char(32),char(219),char(220),char(220),char(219),char(32),char(32),char(32),char(219),char(220),char(220),char(219),char(32),char(219),char(32),char(223),char(220),char(32),char(219),char(220),char(220),char(219),char(32),char(32),char(219),char(223),char(32),char(219),char(32),char(32),char(219),'\0' };
+	char play_again_3[] = { char(219),char(32),char(32),char(32),char(32),char(223),char(223),char(32),char(223),char(32),char(32),char(223),char(32),char(220),char(220),char(220),char(223),char(32),char(32),char(32),char(223),char(32),char(32),char(223),char(32),char(223),char(223),char(223),char(223),char(32),char(223),char(32),char(32),char(223),char(32),char(223),char(223),char(223),char(32),char(223),char(32),char(32),char(223),'\0' };
+	textColor(10, 0);
+	gotoXY(point_start_box.x + 2, point_start_box.y + 2); cout << play_again_1;
+	gotoXY(point_start_box.x + 2, point_start_box.y + 3); cout << play_again_2;
+	gotoXY(point_start_box.x + 2, point_start_box.y + 4); cout << play_again_3;
+	if (answer == 1) textColor(4, 14);
+	else textColor(7, 3);
+	char yes_1[] = { char(32),char(32),char(223),char(220),char(223),char(32),char(219),char(219),char(223),char(32),char(219),char(223),char(223),char(32),char(32),'\0' };
+	char yes_2[] = { char(32),char(32),char(32),char(219),char(32),char(32),char(219),char(220),char(220),char(32),char(220),char(219),char(219),char(32),char(32),'\0' };
+	gotoXY(point_start_box.x + 3, point_start_box.y + 9); cout << yes_1;
+	gotoXY(point_start_box.x + 3, point_start_box.y + 10); cout << yes_2;
+	if (answer == 2) textColor(4, 14);
+	else textColor(7, 3);
+	char no_1[] = { char(32),char(32),char(32),char(219),char(220),char(32),char(219),char(32),char(220),char(223),char(223),char(220),char(32),char(32),char(32),'\0' };
+	char no_2[] = { char(32),char(32),char(32),char(219),char(32),char(223),char(219),char(32),char(223),char(220),char(220),char(223),char(32),char(32),char(32),'\0' };
+	gotoXY(point_start_box.x + 23 + 6, point_start_box.y + 9); cout << no_1;
+	gotoXY(point_start_box.x + 23 + 6, point_start_box.y + 10); cout << no_2;
+}
+
+void draw_snake(char* snake_content, Point* snake_point, int move) { // draw a snake on the console screen
+	int num_snake = *(int*)(snake_content - sizeof(int));
+	if (move == 3) {
+		for (int i = 0; i < num_snake; i++) {
+			gotoXY(snake_point[i].x, snake_point[i].y);
+			if (i == 0) {
+				textColor(14, 4);
+			}
+			else {
+				textColor(14, 5);
+			}
+			cout << snake_content[i];
+		}
+	}
+	else {
+		for (int i = num_snake - 1; i >= 0; i--) {
+			gotoXY(snake_point[i].x, snake_point[i].y);
+			if (i == 0) {
+				textColor(14, 4);
+			}
+			else {
+				textColor(14, 5);
+			}
+			cout << snake_content[i];
+		}
+	}
+}
+
 // play 
 bool gate_passed(Point* snake_point, Point& point_gate) { // check if the snake head goes through the gate
 	if (point_gate.x == snake_point[0].x && point_gate.y == snake_point[0].y) return true;
@@ -182,57 +261,6 @@ void animation_die(Point*& snake_point, char* snake_content, int move) { // crea
 	}
 }
 
-// draw 
-// draw a wall or rectangle on the console screen
-void draw_wall(Point start, Point end, int type_wall, int backgound_color, int text_color, int background_wall_color = 11, int text_wall_color = 9) { 
-	textColor(background_wall_color, text_wall_color);
-	for (int y = start.y; y <= end.y; y++) {
-		gotoXY(start.x - 1, y);
-		cout << char(type_wall) << char(type_wall);
-	}
-	for (int x = start.x; x <= end.x; x++) {
-		gotoXY(x, end.y);
-		cout << char(type_wall);
-	}
-	for (int y = end.y; y >= start.y; y--) {
-		gotoXY(end.x, y);
-		cout << char(type_wall) << char(type_wall);
-	}
-	for (int x = end.x; x >= start.x; x--) {
-		gotoXY(x, start.y);
-		cout << char(type_wall);
-	}
-	for (int x = start.x + 1; x <= end.x - 1; x++) {
-		for (int y = start.y + 1; y <= end.y - 1; y++) {
-			textColor(backgound_color, text_color);
-			gotoXY(x, y);
-			cout << ' ';
-		}
-	}
-}
-
-void draw_gameover(Point point_start_box, Point point_end_box, int answer) { // Draw a Game Over screen on the console, with a menu to select “Yes” or “No”
-	char play_again_1[] = { char(219),char(223),char(223),char(219),char(32),char(219),char(32),char(32),char(219),char(223),char(223),char(220),char(32),char(219),char(32),char(32),char(219),char(32),char(32),char(32),char(219),char(223),char(223),char(220),char(32),char(219),char(223),char(223),char(223),char(32),char(219),char(223),char(223),char(220),char(32),char(32),char(223),char(32),char(32),char(219),char(223),char(223),char(220),'\0' };
-	char play_again_2[] = { char(219),char(220),char(220),char(219),char(32),char(219),char(32),char(32),char(219),char(220),char(220),char(219),char(32),char(219),char(220),char(220),char(219),char(32),char(32),char(32),char(219),char(220),char(220),char(219),char(32),char(219),char(32),char(223),char(220),char(32),char(219),char(220),char(220),char(219),char(32),char(32),char(219),char(223),char(32),char(219),char(32),char(32),char(219),'\0' };
-	char play_again_3[] = { char(219),char(32),char(32),char(32),char(32),char(223),char(223),char(32),char(223),char(32),char(32),char(223),char(32),char(220),char(220),char(220),char(223),char(32),char(32),char(32),char(223),char(32),char(32),char(223),char(32),char(223),char(223),char(223),char(223),char(32),char(223),char(32),char(32),char(223),char(32),char(223),char(223),char(223),char(32),char(223),char(32),char(32),char(223),'\0' };
-	textColor(10, 0);
-	gotoXY(point_start_box.x + 2, point_start_box.y + 2); cout << play_again_1;
-	gotoXY(point_start_box.x + 2, point_start_box.y + 3); cout << play_again_2;
-	gotoXY(point_start_box.x + 2, point_start_box.y + 4); cout << play_again_3;
-	if (answer == 1) textColor(4, 14);
-	else textColor(7, 3);
-	char yes_1[] = { char(32),char(32),char(223),char(220),char(223),char(32),char(219),char(219),char(223),char(32),char(219),char(223),char(223),char(32),char(32),'\0' };
-	char yes_2[] = { char(32),char(32),char(32),char(219),char(32),char(32),char(219),char(220),char(220),char(32),char(220),char(219),char(219),char(32),char(32),'\0' };
-	gotoXY(point_start_box.x + 3, point_start_box.y + 9); cout << yes_1;
-	gotoXY(point_start_box.x + 3, point_start_box.y + 10); cout << yes_2;
-	if (answer == 2) textColor(4, 14);
-	else textColor(7, 3);
-	char no_1[] = { char(32),char(32),char(32),char(219),char(220),char(32),char(219),char(32),char(220),char(223),char(223),char(220),char(32),char(32),char(32),'\0' };
-	char no_2[] = { char(32),char(32),char(32),char(219),char(32),char(223),char(219),char(32),char(223),char(220),char(220),char(223),char(32),char(32),char(32),'\0' };
-	gotoXY(point_start_box.x + 23 + 6, point_start_box.y + 9); cout << no_1;
-	gotoXY(point_start_box.x + 23 + 6, point_start_box.y + 10); cout << no_2;
-}
-
 // game over 
 bool touch_wall(Point* snake_point, Point point_start, Point point_end) { // check to see if the snake's head is touching the wall
 	if (snake_point[0].x == point_start.x || snake_point[0].x == point_end.x) return true;
@@ -303,5 +331,6 @@ void game_over(Point point_start, Point point_end, bool& end_while, Sound sound)
 		}
 	}
 }
+
 
 
