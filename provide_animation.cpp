@@ -161,7 +161,7 @@ void draw_wall(Point start, Point end, int type_wall, int backgound_color, int t
 	}
 }
 
-void draw_gameover(Point point_start_box, Point point_end_box, int answer) { // Draw a Game Over screen on the console, with a menu to select “Yes” or “No”
+void draw_gameover(Point point_start_box, Point point_end_box, int answer) { // Draw a Game Over screen on the console, with a menu to select â€œYesâ€ or â€œNoâ€
 	char play_again_1[] = { char(219),char(223),char(223),char(219),char(32),char(219),char(32),char(32),char(219),char(223),char(223),char(220),char(32),char(219),char(32),char(32),char(219),char(32),char(32),char(32),char(219),char(223),char(223),char(220),char(32),char(219),char(223),char(223),char(223),char(32),char(219),char(223),char(223),char(220),char(32),char(32),char(223),char(32),char(32),char(219),char(223),char(223),char(220),'\0' };
 	char play_again_2[] = { char(219),char(220),char(220),char(219),char(32),char(219),char(32),char(32),char(219),char(220),char(220),char(219),char(32),char(219),char(220),char(220),char(219),char(32),char(32),char(32),char(219),char(220),char(220),char(219),char(32),char(219),char(32),char(223),char(220),char(32),char(219),char(220),char(220),char(219),char(32),char(32),char(219),char(223),char(32),char(219),char(32),char(32),char(219),'\0' };
 	char play_again_3[] = { char(219),char(32),char(32),char(32),char(32),char(223),char(223),char(32),char(223),char(32),char(32),char(223),char(32),char(220),char(220),char(220),char(223),char(32),char(32),char(32),char(223),char(32),char(32),char(223),char(32),char(223),char(223),char(223),char(223),char(32),char(223),char(32),char(32),char(223),char(32),char(223),char(223),char(223),char(32),char(223),char(32),char(32),char(223),'\0' };
@@ -215,7 +215,7 @@ bool touch_wallgate(Point* snake_point, vector<Point>& gatewall) { // check if t
 	return false;
 }
 
-void game_over(Point point_start, Point point_end, bool& end_while, Sound sound) { // handles the Game Over screen and the “Play Again / Exit” menu options
+void game_over(Point point_start, Point point_end, bool& end_while, Sound sound) { // handles the Game Over screen and the â€œPlay Again / Exitâ€ menu options
 	bool click = false;
 	int answer = 1;
 	Point point_start_box = { point_start.x + 16, point_start.y + 7 };
