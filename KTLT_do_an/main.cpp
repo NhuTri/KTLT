@@ -517,6 +517,8 @@ void MainMenu() {
 //Use a loop to keep the user in the program.
 //After the game is finished (or Game Over), the program will return to the Main Menu instead of closing.
 int main() {
+	HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
+	SetConsoleTextAttribute(h, BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE);
 	FixConsoleWindow();
 	MainMenu();
 	return 0;
