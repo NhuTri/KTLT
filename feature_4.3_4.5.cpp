@@ -16,7 +16,7 @@ using namespace std;
 typedef struct POINT_POINT {
 	int x;
 	int y;
-}POINT;
+}Point;
 
 //constant 
 #define MAX_SIZE_SNAKE 10
@@ -24,8 +24,8 @@ typedef struct POINT_POINT {
 #define MAX_SPEED 3
 
 //Global variables
-POINT snake[10]; //snake
-POINT food[4]; // food
+Point snake[10]; //snake
+Point food[4]; // food
 int CHAR_LOCK; // used to determine the direction my snake cannot move (At one point, there was a direction my snake could not move to)
 int MOVING;// used to determine the direction of movement of the snake (At any given time, there are 3 directions that my snake can move)
 int SPEED;// Abbreviation of level, the higher the level the faster the speed  
@@ -175,18 +175,6 @@ void GenerateFood() { // randomly generate food positions on the screen, making 
 	}
 }
 
-void GenerateFood() {
-    srand(time(NULL));
-    for (int i = 0; i < MAX_SIZE_FOOD; i++) {
-        int x, y;
-        do {
-            x = rand() % (WIDTH_CONSOLE - 1) + 1;
-            y = rand() % (HEIGH_CONSOLE - 1) + 1;
-        } while (!IsValid(x, y));
-        food[i] = { x, y };
-    }
-}
-
 void Eat() { // how to handle snake eating food
 	if (SIZE_SNAKE < MAX_SIZE_SNAKE) {
 		snake[SIZE_SNAKE] = food[FOOD_INDEX];
@@ -240,8 +228,6 @@ void animation_pass_gate(POINT*& snake_point, char* snake_content, int move) {
             break;
     }
 }
-
-
 
 void animation_die(POINT*& snake_point, char* snake_content, int move) {
     int n = SIZE_SNAKE;
@@ -329,6 +315,7 @@ void game_over(POINT point_start, POINT point_end, bool& end_while, Sound sound)
 		}
 	}
 }
+
 
 
 
