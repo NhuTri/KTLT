@@ -16,7 +16,7 @@ using namespace std;
 typedef struct POINT_POINT {
 	int x;
 	int y;
-}Point;
+}POINT;
 
 //constant 
 #define MAX_SIZE_SNAKE 10
@@ -34,7 +34,6 @@ int FOOD_INDEX; //Current food index
 int SIZE_SNAKE; // The size of the snake, initially can be 6 units and the maximum size can be 10
 int STATE; // The state of the snake: dead or alive
 
-enum Sound { on, off }; // manage game audio status
 
 void gotoXY(int x, int y) // move the console cursor to the coordinate position (x, y)
 {
@@ -52,6 +51,8 @@ void textColor(int backgound_color, int text_color) // change text and backgroun
 }
 
 // sound 
+enum Sound { on, off }; // manage game audio status
+
 void sound_intro() { // play intro music 
 	PlaySound(TEXT("intro.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
 }
@@ -86,7 +87,7 @@ void sound_exit() { // play background music when player exits or at game end/ex
 
 // draw 
 // draw a wall or rectangle on the console screen
-void draw_wall(Point start, Point end, int type_wall, int backgound_color, int text_color, int background_wall_color = 11, int text_wall_color = 9) {
+void draw_wall(POINT start, POINT end, int type_wall, int backgound_color, int text_color, int background_wall_color = 11, int text_wall_color = 9) {
 	textColor(background_wall_color, text_wall_color);
 	for (int y = start.y; y <= end.y; y++) {
 		gotoXY(start.x - 1, y);
@@ -113,7 +114,7 @@ void draw_wall(Point start, Point end, int type_wall, int backgound_color, int t
 	}
 }
 
-void draw_gameover(Point point_start_box, Point point_end_box, int answer) { // Draw a Game Over screen on the console, with a menu to select ìYesî or ìNoî
+void draw_gameover(POINT point_start_box, POINT point_end_box, int answer) { // Draw a Game Over screen on the console, with a menu to select ‚ÄúYes‚Äù or ‚ÄúNo‚Äù
 	char play_again_1[] = { char(219),char(223),char(223),char(219),char(32),char(219),char(32),char(32),char(219),char(223),char(223),char(220),char(32),char(219),char(32),char(32),char(219),char(32),char(32),char(32),char(219),char(223),char(223),char(220),char(32),char(219),char(223),char(223),char(223),char(32),char(219),char(223),char(223),char(220),char(32),char(32),char(223),char(32),char(32),char(219),char(223),char(223),char(220),'\0' };
 	char play_again_2[] = { char(219),char(220),char(220),char(219),char(32),char(219),char(32),char(32),char(219),char(220),char(220),char(219),char(32),char(219),char(220),char(220),char(219),char(32),char(32),char(32),char(219),char(220),char(220),char(219),char(32),char(219),char(32),char(223),char(220),char(32),char(219),char(220),char(220),char(219),char(32),char(32),char(219),char(223),char(32),char(219),char(32),char(32),char(219),'\0' };
 	char play_again_3[] = { char(219),char(32),char(32),char(32),char(32),char(223),char(223),char(32),char(223),char(32),char(32),char(223),char(32),char(220),char(220),char(220),char(223),char(32),char(32),char(32),char(223),char(32),char(32),char(223),char(32),char(223),char(223),char(223),char(223),char(32),char(223),char(32),char(32),char(223),char(32),char(223),char(223),char(223),char(32),char(223),char(32),char(32),char(223),'\0' };
@@ -135,36 +136,21 @@ void draw_gameover(Point point_start_box, Point point_end_box, int answer) { // 
 	gotoXY(point_start_box.x + 23 + 6, point_start_box.y + 10); cout << no_2;
 }
 
-void draw_snake(char* snake_content, Point* snake_point, int move) { // draw a snake on the console screen
-	int num_snake = *(int*)(snake_content - sizeof(int));
-	if (move == 3) {
-		for (int i = 0; i < num_snake; i++) {
-			gotoXY(snake_point[i].x, snake_point[i].y);
-			if (i == 0) {
-				textColor(14, 4);
-			}
-			else {
-				textColor(14, 5);
-			}
-			cout << snake_content[i];
-		}
-	}
-	else {
-		for (int i = num_snake - 1; i >= 0; i--) {
-			gotoXY(snake_point[i].x, snake_point[i].y);
-			if (i == 0) {
-				textColor(14, 4);
-			}
-			else {
-				textColor(14, 5);
-			}
-			cout << snake_content[i];
-		}
-	}
+void draw_snake(char* snake_content, Point* snake_point, int move) {
+    int num_snake = SIZE_SNAKE;
+
+    for (int i = num_snake - 1; i >= 0; i--) {
+        gotoXY(snake_point[i].x, snake_point[i].y);
+        if (i == 0) textColor(14, 4);
+        else textColor(14, 5);
+
+        cout << snake_content[i];
+    }
 }
 
+
 // play 
-bool gate_passed(Point* snake_point, Point& point_gate) { // check if the snake head goes through the gate
+bool gate_passed(POINT* snake_point, POINT& point_gate) { // check if the snake head goes through the gate
 	if (point_gate.x == snake_point[0].x && point_gate.y == snake_point[0].y) return true;
 	return false;
 }
@@ -189,6 +175,18 @@ void GenerateFood() { // randomly generate food positions on the screen, making 
 	}
 }
 
+void GenerateFood() {
+    srand(time(NULL));
+    for (int i = 0; i < MAX_SIZE_FOOD; i++) {
+        int x, y;
+        do {
+            x = rand() % (WIDTH_CONSOLE - 1) + 1;
+            y = rand() % (HEIGH_CONSOLE - 1) + 1;
+        } while (!IsValid(x, y));
+        food[i] = { x, y };
+    }
+}
+
 void Eat() { // how to handle snake eating food
 	if (SIZE_SNAKE < MAX_SIZE_SNAKE) {
 		snake[SIZE_SNAKE] = food[FOOD_INDEX];
@@ -211,74 +209,73 @@ void Eat() { // how to handle snake eating food
 	}
 }
 
-void move_snake(char key, int& move) { // determine the direction of the snake's movement
-	if (key == 'w' && move != 2) move = 1;
-	else if (key == 's' && move != 1) move = 2;
-	else if (key == 'a' && move != 4) move = 3;
-	else if (key == 'd' && move != 3) move = 4;
+void move_snake(char key) { // determine the direction of the snake's movement
+	if (key == 'w' && MOVING != 2) MOVING = 1;
+	else if (key == 's' && MOVING != 1) MOVING = 2;
+	else if (key == 'a' && MOVING != 4) MOVING = 3;
+	else if (key == 'd' && MOVING != 3) MOVING = 4;
 }
 
-void animation_pass_gate(Point*& snake_point, char* snake_content, int move) { // create animation when snake goes through gate
-	int num_snake = *(int*)(snake_content - sizeof(int));
-	textColor(14, 5); gotoXY(snake_point[num_snake].x, snake_point[num_snake].y); cout << char(32);
-	while (true) {
-		snake_point[0].x = snake_point[1].x;
-		snake_point[0].y = snake_point[1].y;
-		for (int i = num_snake; i > 0; i--) {
-			snake_point[i].x = snake_point[i - 1].x;
-			snake_point[i].y = snake_point[i - 1].y;
-		}
-		textColor(14, 5); gotoXY(snake_point[num_snake].x, snake_point[num_snake].y); cout << char(32);
-		for (int i = 0; i < num_snake; i++) {
-			gotoXY(snake_point[i].x, snake_point[i].y);
-			if (i == 0) {
-				textColor(14, 4);
-			}
-			else {
-				textColor(14, 5);
-			}
-			cout << snake_content[i];
-		}
-		Sleep(250);
-		if (snake_point[0].x == snake_point[num_snake - 1].x && snake_point[0].y == snake_point[num_snake - 1].y) {
-			break;
-		}
-	}
+void animation_pass_gate(POINT*& snake_point, char* snake_content, int move) {
+    int n = SIZE_SNAKE;
+
+    textColor(14, 5);
+    gotoXY(snake_point[n - 1].x, snake_point[n - 1].y);
+    cout << ' ';
+
+    while (true) {
+        snake_point[0] = snake_point[1];
+
+        for (int i = n - 1; i > 0; i--)
+            snake_point[i] = snake_point[i - 1];
+
+        gotoXY(snake_point[n - 1].x, snake_point[n - 1].y);
+        cout << ' ';
+
+        draw_snake(snake_content, snake_point, move);
+        Sleep(250);
+
+        if (snake_point[0].x == snake_point[n - 2].x &&
+            snake_point[0].y == snake_point[n - 2].y)
+            break;
+    }
 }
 
-void animation_die(Point*& snake_point, char* snake_content, int move) { // create an animation when the snake dies
-	int num_snake = *(int*)(snake_content - sizeof(int));
-	textColor(14, 5); gotoXY(snake_point[num_snake].x, snake_point[num_snake].y); cout << char(32);
-	for (int i = 0; i < 5; i++) {
-		;
-		for (int j = num_snake - 1; j >= 0; j--) {
-			textColor(14, 4); gotoXY(snake_point[j].x, snake_point[j].y);
-			if (j == 0) cout << 'X';
-			else cout << ' ';
-		}
-		Sleep(250);
-		draw_snake(snake_content, snake_point, move);
-		Sleep(250);
-	}
+
+
+void animation_die(POINT*& snake_point, char* snake_content, int move) {
+    int n = SIZE_SNAKE;
+
+    for (int k = 0; k < 5; k++) {
+        for (int i = n - 1; i >= 0; i--) {
+            textColor(14, 4);
+            gotoXY(snake_point[i].x, snake_point[i].y);
+            cout << (i == 0 ? 'X' : ' ');
+        }
+        Sleep(250);
+
+        draw_snake(snake_content, snake_point, move);
+        Sleep(250);
+    }
 }
 
 // game over 
-bool touch_wall(Point* snake_point, Point point_start, Point point_end) { // check to see if the snake's head is touching the wall
+bool touch_wall(POINT* snake_point, POINT point_start, POINT point_end) { // check to see if the snake's head is touching the wall
 	if (snake_point[0].x == point_start.x || snake_point[0].x == point_end.x) return true;
 	if (snake_point[0].y == point_start.y || snake_point[0].y == point_end.y) return true;
 	return false;
 }
 
-bool touch_body(Point* snake_point, char* snake_content) { // check to see if the snake's head is touching the snake's body
-	int num_snake = *(int*)(snake_content - sizeof(int));
-	if (num_snake < 5) return false;
-	for (int i = 4; i < num_snake; i++) {
+bool touch_body(POINT* snake_point, char* snake_content) { // check to see if the snake's head is touching the snake's body
+	int SIZE_SNAKE = *(int*)(snake_content - sizeof(int));
+	if (SIZE_SNAKE < 5) return false;
+	for (int i = 4; i < SIZE_SNAKE; i++) {
 		if (snake_point[0].x == snake_point[i].x && snake_point[0].y == snake_point[i].y) return true;
 	}
 	return false;
 }
 
-bool touch_obstacle(Point* snake_point, vector<Point>& obstacles) { // check to see if the snake's head is touching an obstacle
+bool touch_obstacle(POINT* snake_point, vector<POINT>& obstacles) { // check to see if the snake's head is touching an obstacle
 	for (auto& ob : obstacles) {
 		if (snake_point[0].x == ob.x && snake_point[0].y == ob.y)
 			return true;
@@ -286,7 +283,7 @@ bool touch_obstacle(Point* snake_point, vector<Point>& obstacles) { // check to 
 	return false;
 }
 
-bool touch_wallgate(Point* snake_point, vector<Point>& gatewall) { // check if the snake head is touching the gate cells
+bool touch_wallgate(POINT* snake_point, vector<POINT>& gatewall) { // check if the snake head is touching the gate cells
 	for (auto& ob : gatewall) {
 		if (snake_point[0].x == ob.x && snake_point[0].y == ob.y)
 			return true;
@@ -294,7 +291,7 @@ bool touch_wallgate(Point* snake_point, vector<Point>& gatewall) { // check if t
 	return false;
 }
 
-void game_over(Point point_start, Point point_end, bool& end_while, Sound sound) { // handles the Game Over screen and the ìPlay Again / Exitî menu options
+void game_over(POINT point_start, POINT point_end, bool& end_while, Sound sound) { // handles the Game Over screen and the ‚ÄúPlay Again / Exit‚Äù menu options
 	bool click = false;
 	int answer = 1;
 	Point point_start_box = { point_start.x + 16, point_start.y + 7 };
@@ -332,6 +329,7 @@ void game_over(Point point_start, Point point_end, bool& end_while, Sound sound)
 		}
 	}
 }
+
 
 
 
