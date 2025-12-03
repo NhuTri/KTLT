@@ -26,7 +26,11 @@ int HEIGH_CONSOLE, WIDTH_CONSOLE;// Width and height of console-screen
 int FOOD_INDEX; // current food-index
 int SIZE_SNAKE; // size of snake, initially maybe 6 units and maximum size maybe 10
 int STATE; // State of snake: dead or alive
-
+//Global variables for gate
+POINT gate[3];// gate
+POINT wall[4];// wall    
+bool GATE_ACTIVE;// whether the gate is currently active
+int LEVEL = 1;
 
 //function to fix the screen with reasonable size
 void FixConsoleWindow() {
@@ -111,21 +115,47 @@ void PauseGame(HANDLE t) {
 	SuspendThread(t);
 }
 
+//function to activate gate
+void ActivateGate() {
+	GATE_ACTIVE = true;
+	gate[0].x = gate[1].x = gate[2].x = WIDTH_CONSOLE - 1;
+	gate[0].y = HEIGH_CONSOLE / 2 - 1;
+	gate[1].y = HEIGH_CONSOLE / 2;
+	gate[2].y = HEIGH_CONSOLE / 2 + 1;
+
+	wall[0].x = wall[3].x = WIDTH_CONSOLE - 2;
+	wall[1].x = wall[2].x = WIDTH_CONSOLE - 1;
+	wall[0].y = wall[1].y = HEIGH_CONSOLE / 2 - 2;
+	wall[2].y = wall[3].y = HEIGH_CONSOLE / 2 + 2;
+
+}
+
+//function to draw gate and wall of gate
+void DrawGate() {
+	GotoXY(wall[0].x, wall[0].y);cout << "0";
+	GotoXY(wall[1].x, wall[1].y);cout << "0";
+	GotoXY(wall[2].x, wall[2].y);cout << "0";
+	GotoXY(wall[3].x, wall[3].y);cout << "0";
+
+	GotoXY(gate[0].x, gate[0].y);cout << "0";
+	GotoXY(gate[1].x, gate[1].y);cout << "0";
+	GotoXY(gate[2].x, gate[2].y);cout << "0";
+}
+
 //function to update global data
 void Eat() {
 	snake[SIZE_SNAKE] = food[FOOD_INDEX];
-	if (FOOD_INDEX == MAX_SIZE_FOOD - 1)
-	{
-		FOOD_INDEX = 0;
-		SIZE_SNAKE = 6;
-		if (SPEED == MAX_SPEED) SPEED = 1;
-		else SPEED++;
-		GenerateFood();
+	SIZE_SNAKE++;
+
+	if (FOOD_INDEX == MAX_SIZE_FOOD - 1) {
+		GATE_ACTIVE = true;
+		ActivateGate();
+		DrawGate();
 	}
 	else {
 		FOOD_INDEX++;
-		SIZE_SNAKE++;
 	}
+
 }
 
 //function to process the dead of snake
@@ -135,14 +165,64 @@ void ProcessDead() {
 	printf("Dead, type y to continue or anykey to exit");
 }
 
-//function to draw
+//function to draw snake and food
 void DrawSnakeAndFood(char* str) {
-	GotoXY(food[FOOD_INDEX].x, food[FOOD_INDEX].y);
-	printf(str);
+	if (!GATE_ACTIVE && FOOD_INDEX >= 0 && FOOD_INDEX < MAX_SIZE_FOOD) {
+		GotoXY(food[FOOD_INDEX].x, food[FOOD_INDEX].y);
+		printf(str);
+	}
+
 	for (int i = 0; i < SIZE_SNAKE; i++) {
 		GotoXY(snake[i].x, snake[i].y);
 		printf(str);
 	}
+}
+
+//function to draw snake go through gate
+void DrawSnakeGoThroughGate() {
+	int cnt = SIZE_SNAKE;
+	while (cnt > 0) {
+		GotoXY(snake[0].x, snake[0].y);
+		printf(" ");
+		for (int i = 0; i < cnt - 1; i++) {
+			snake[i].x = snake[i + 1].x;
+			snake[i].y = snake[i + 1].y;
+			GotoXY(snake[i].x, snake[i].y); 
+			printf("O");
+		}
+		cnt--;
+		Sleep(300 / SPEED);
+	}
+}
+
+//function solve if you pass 3 levels, you win.
+void GameWin() {
+	system("cls");
+	GotoXY(20, 10);
+	printf("YOU WIN!\n");
+	exit(0);
+}
+
+//function to show next level
+void NextLevel() {
+	LEVEL++;
+	SPEED++;
+	GATE_ACTIVE = false;
+
+	if (LEVEL > 3) {
+		GameWin();
+		return;
+	}
+
+	system("cls");
+	CHAR_LOCK = 'A', MOVING = 'D'; 
+	FOOD_INDEX = 0, WIDTH_CONSOLE = 70, HEIGH_CONSOLE = 20, SIZE_SNAKE = 6;
+	snake[0] = { 10, 5 }; snake[1] = { 11, 5 };
+	snake[2] = { 12, 5 }; snake[3] = { 13, 5 };
+	snake[4] = { 14, 5 }; snake[5] = { 15, 5 };
+	GenerateFood();
+	DrawBoard(0, 0, WIDTH_CONSOLE, HEIGH_CONSOLE);
+	STATE = 1;
 }
 
 //function to check if the head will collide with the body
@@ -159,6 +239,16 @@ void MoveRight() {
 	if (snake[SIZE_SNAKE - 1].x + 1 == WIDTH_CONSOLE
 		|| IsCollisionWithBody(snake[SIZE_SNAKE - 1].x + 1, snake[SIZE_SNAKE - 1].y)) {
 		ProcessDead();
+	}
+	else if (GATE_ACTIVE && ((snake[SIZE_SNAKE - 1].x + 1 == wall[0].x && snake[SIZE_SNAKE - 1].y == wall[0].y)
+		|| (snake[SIZE_SNAKE - 1].x + 1 == wall[2].x && snake[SIZE_SNAKE - 1].y == wall[2].y))) {
+		ProcessDead();
+	}
+	else if ((GATE_ACTIVE && snake[SIZE_SNAKE - 1].x + 1 == gate[0].x && snake[SIZE_SNAKE - 1].y == gate[0].y)
+		|| (GATE_ACTIVE && snake[SIZE_SNAKE - 1].x + 1 == gate[1].x && snake[SIZE_SNAKE - 1].y == gate[1].y)
+		|| (GATE_ACTIVE && snake[SIZE_SNAKE - 1].x + 1 == gate[2].x && snake[SIZE_SNAKE - 1].y == gate[2].y)) {
+		DrawSnakeGoThroughGate();
+		NextLevel();
 	}
 	else {
 		if (snake[SIZE_SNAKE - 1].x + 1 == food[FOOD_INDEX].x && snake[SIZE_SNAKE - 1].y == food[FOOD_INDEX].y) {
@@ -196,6 +286,12 @@ void MoveDown() {
 		|| IsCollisionWithBody(snake[SIZE_SNAKE - 1].x, snake[SIZE_SNAKE - 1].y + 1)) {
 		ProcessDead();
 	}
+	else if (GATE_ACTIVE && ((snake[SIZE_SNAKE - 1].x == wall[0].x && snake[SIZE_SNAKE - 1].y + 1 == wall[0].y)
+		|| (snake[SIZE_SNAKE - 1].x == wall[1].x && snake[SIZE_SNAKE - 1].y + 1 == wall[1].y)
+		|| (snake[SIZE_SNAKE - 1].x == wall[2].x && snake[SIZE_SNAKE - 1].y + 1 == wall[2].y)
+		|| (snake[SIZE_SNAKE - 1].x == wall[3].x && snake[SIZE_SNAKE - 1].y + 1 == wall[3].y))) {
+		ProcessDead();
+	}
 	else {
 		if (snake[SIZE_SNAKE - 1].x == food[FOOD_INDEX].x && snake[SIZE_SNAKE - 1].y + 1 == food[FOOD_INDEX].y) {
 			Eat();
@@ -212,6 +308,12 @@ void MoveDown() {
 void MoveUp() {
 	if (snake[SIZE_SNAKE - 1].y - 1 == 0
 		|| IsCollisionWithBody(snake[SIZE_SNAKE - 1].x, snake[SIZE_SNAKE - 1].y - 1)) {
+		ProcessDead();
+	}
+	else if (GATE_ACTIVE && ((snake[SIZE_SNAKE - 1].x == wall[0].x && snake[SIZE_SNAKE - 1].y - 1 == wall[0].y)
+		|| (snake[SIZE_SNAKE - 1].x == wall[1].x && snake[SIZE_SNAKE - 1].y - 1 == wall[1].y)
+		|| (snake[SIZE_SNAKE - 1].x == wall[2].x && snake[SIZE_SNAKE - 1].y - 1 == wall[2].y)
+		|| (snake[SIZE_SNAKE - 1].x == wall[3].x && snake[SIZE_SNAKE - 1].y - 1 == wall[3].y))) {
 		ProcessDead();
 	}
 	else {
@@ -246,7 +348,7 @@ void ThreadFunc() {
 				break;
 			}
 			DrawSnakeAndFood((char*)"O");
-			Sleep(1000 / SPEED);//Sleep function with SPEEED variable
+			Sleep(300 / SPEED);//Sleep function with SPEEED variable
 		}
 	}
 }
