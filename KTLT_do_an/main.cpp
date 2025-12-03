@@ -192,7 +192,7 @@ void DrawSnakeGoThroughGate() {
 			snake[i].x = snake[i + 1].x;
 			snake[i].y = snake[i + 1].y;
 			GotoXY(snake[i].x, snake[i].y);
-			printf("O");
+			printf("%c", TEAM_IDS[i % TEAM_IDS.length()]);
 		}
 		cnt--;
 		Sleep(300 / SPEED);
