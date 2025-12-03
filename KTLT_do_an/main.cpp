@@ -16,6 +16,8 @@ using namespace std;
 #define MAX_SIZE_SNAKE 10
 #define MAX_SIZE_FOOD 4
 #define MAX_SPEED 3
+const string TEAM_IDS = "221203792212039123120234"; //Requirement 4.6: Student IDs
+
 //Global variables
 POINT snake[10]; //snake
 POINT food[4]; // food
@@ -83,15 +85,15 @@ void ResetData() {
 
 //function to draw the surrounded rectangle
 void DrawBoard(int x, int y, int width, int height, int curPosX = 0, int curPosY = 0) {
-	GotoXY(x, y);cout << 'X';
+	GotoXY(x, y); cout << 'X';
 	for (int i = 1; i < width; i++)cout << 'X';
 	cout << 'X';
-	GotoXY(x, height + y);cout << 'X';
+	GotoXY(x, height + y); cout << 'X';
 	for (int i = 1; i < width; i++)cout << 'X';
 	cout << 'X';
 	for (int i = y + 1; i < height + y; i++) {
-		GotoXY(x, i);cout << 'X';
-		GotoXY(x + width, i);cout << 'X';
+		GotoXY(x, i); cout << 'X';
+		GotoXY(x + width, i); cout << 'X';
 	}
 	GotoXY(curPosX, curPosY);
 }
@@ -132,14 +134,14 @@ void ActivateGate() {
 
 //function to draw gate and wall of gate
 void DrawGate() {
-	GotoXY(wall[0].x, wall[0].y);cout << "0";
-	GotoXY(wall[1].x, wall[1].y);cout << "0";
-	GotoXY(wall[2].x, wall[2].y);cout << "0";
-	GotoXY(wall[3].x, wall[3].y);cout << "0";
+	GotoXY(wall[0].x, wall[0].y); cout << "0";
+	GotoXY(wall[1].x, wall[1].y); cout << "0";
+	GotoXY(wall[2].x, wall[2].y); cout << "0";
+	GotoXY(wall[3].x, wall[3].y); cout << "0";
 
-	GotoXY(gate[0].x, gate[0].y);cout << "0";
-	GotoXY(gate[1].x, gate[1].y);cout << "0";
-	GotoXY(gate[2].x, gate[2].y);cout << "0";
+	GotoXY(gate[0].x, gate[0].y); cout << "0";
+	GotoXY(gate[1].x, gate[1].y); cout << "0";
+	GotoXY(gate[2].x, gate[2].y); cout << "0";
 }
 
 //function to update global data
@@ -166,6 +168,7 @@ void ProcessDead() {
 }
 
 //function to draw snake and food
+//Requiment 4.6: UPDATE the function DrawSnakeAndFood() to draw the snake's body including all the team's student IDs
 void DrawSnakeAndFood(char* str) {
 	if (!GATE_ACTIVE && FOOD_INDEX >= 0 && FOOD_INDEX < MAX_SIZE_FOOD) {
 		GotoXY(food[FOOD_INDEX].x, food[FOOD_INDEX].y);
@@ -174,7 +177,8 @@ void DrawSnakeAndFood(char* str) {
 
 	for (int i = 0; i < SIZE_SNAKE; i++) {
 		GotoXY(snake[i].x, snake[i].y);
-		printf(str);
+		if (strcmp(str, " ") == 0) printf(" ");
+		else printf("%c", TEAM_IDS[i % TEAM_IDS.length()]);
 	}
 }
 
@@ -187,7 +191,7 @@ void DrawSnakeGoThroughGate() {
 		for (int i = 0; i < cnt - 1; i++) {
 			snake[i].x = snake[i + 1].x;
 			snake[i].y = snake[i + 1].y;
-			GotoXY(snake[i].x, snake[i].y); 
+			GotoXY(snake[i].x, snake[i].y);
 			printf("O");
 		}
 		cnt--;
@@ -215,7 +219,7 @@ void NextLevel() {
 	}
 
 	system("cls");
-	CHAR_LOCK = 'A', MOVING = 'D'; 
+	CHAR_LOCK = 'A', MOVING = 'D';
 	FOOD_INDEX = 0, WIDTH_CONSOLE = 70, HEIGH_CONSOLE = 20, SIZE_SNAKE = 6;
 	snake[0] = { 10, 5 }; snake[1] = { 11, 5 };
 	snake[2] = { 12, 5 }; snake[3] = { 13, 5 };
@@ -353,13 +357,58 @@ void ThreadFunc() {
 	}
 }
 
-// main function
-int main() {
+// --- REQUIREMENT 4.2 Save/Load ---
+//function to save game
+void SaveGame(const string& filename) {
+	ofstream file(filename, ios::binary);
+	if (!file) {
+		GotoXY(0, HEIGH_CONSOLE + 3);
+		cout << "Error opening file for save!" << endl;
+		return;
+	}
+	file.write((char*)&SIZE_SNAKE, sizeof(int));
+	file.write((char*)&SPEED, sizeof(int));
+	file.write((char*)&FOOD_INDEX, sizeof(int));
+	file.write((char*)&CHAR_LOCK, sizeof(int));
+	file.write((char*)&MOVING, sizeof(int));
+	file.write((char*)&WIDTH_CONSOLE, sizeof(int));
+	file.write((char*)&HEIGH_CONSOLE, sizeof(int));
+	file.write((char*)snake, sizeof(POINT) * MAX_SIZE_SNAKE);
+	file.write((char*)food, sizeof(POINT) * MAX_SIZE_FOOD);
+	file.close();
+
+	GotoXY(0, HEIGH_CONSOLE + 3);
+	cout << "Game saved to " << filename << " successfully! Press any key to continue.";
+	_getch();
+}
+
+//function to load game
+bool LoadGame(const string& filename) {
+	ifstream file(filename, ios::binary);
+	if (!file) {
+		return false;
+	}
+	file.read((char*)&SIZE_SNAKE, sizeof(int));
+	file.read((char*)&SPEED, sizeof(int));
+	file.read((char*)&FOOD_INDEX, sizeof(int));
+	file.read((char*)&CHAR_LOCK, sizeof(int));
+	file.read((char*)&MOVING, sizeof(int));
+	file.read((char*)&WIDTH_CONSOLE, sizeof(int));
+	file.read((char*)&HEIGH_CONSOLE, sizeof(int));
+	file.read((char*)snake, sizeof(POINT) * MAX_SIZE_SNAKE);
+	file.read((char*)food, sizeof(POINT) * MAX_SIZE_FOOD);
+	file.close();
+	return true;
+}
+
+// --- REQUIMENT 4.6 Main Menu ---
+//function to process keystrokes (W, A, S, D, L, T...) entered by the user
+//separated from main function
+void PlayGame() {
+	thread t1(ThreadFunc);
+	HANDLE handle_t1 = t1.native_handle();
 	int temp;
-	FixConsoleWindow();
-	StartGame();
-	thread t1(ThreadFunc); //Create thread for snake
-	HANDLE handle_t1 = t1.native_handle(); //Take handle of thread
+
 	while (1) {
 		temp = toupper(_getch());
 		if (STATE == 1) {
@@ -368,7 +417,39 @@ int main() {
 			}
 			else if (temp == 27) {
 				ExitGame(handle_t1);
-				return 1;
+				t1.detach();
+				return;
+			}
+			else if (temp == 'L') {
+				PauseGame(handle_t1);
+				GotoXY(0, HEIGH_CONSOLE + 2);
+				string filename;
+				cout << "Save game, enter filename to save: ";
+				cin >> filename;
+				SaveGame(filename);
+				system("cls");
+				DrawBoard(0, 0, WIDTH_CONSOLE, HEIGH_CONSOLE);
+				ResumeThread(handle_t1);
+			}
+			else if (temp == 'T') {
+				PauseGame(handle_t1);
+				GotoXY(0, HEIGH_CONSOLE + 2);
+				string filename;
+				cout << "Load game, enter filename to load: ";
+				cin >> filename;
+				if (LoadGame(filename)) {
+					system("cls");
+					DrawBoard(0, 0, WIDTH_CONSOLE, HEIGH_CONSOLE);
+					DrawSnakeAndFood((char*)"O");
+					ResumeThread(handle_t1);
+				}
+				else {
+					cout << "\nLoad failed! Press any key to return.";
+					_getch();
+					system("cls");
+					DrawBoard(0, 0, WIDTH_CONSOLE, HEIGH_CONSOLE);
+					ResumeThread(handle_t1);
+				}
 			}
 			else {
 				ResumeThread(handle_t1);
@@ -383,12 +464,45 @@ int main() {
 			}
 		}
 		else {
-			if (temp == 'Y') StartGame();
+			if (temp == 'Y') {
+				ExitGame(handle_t1);
+				t1.detach();
+				StartGame();
+				PlayGame();
+				return;
+			}
 			else {
 				ExitGame(handle_t1);
-				return 1;
+				t1.detach();
+				return;
 			}
 		}
 	}
+}
+
+//function to display main menu
+//Displays a simple menu interface for users to select (1. New Game, 2. Load Game, 3. Exit).
+void MainMenu() {
+	int choice;
+	while (true) {
+		system("cls");
+		cout << "1. New Game\n2. Load Game\n3. Exit\n";
+		cout << "Your choice: "; cin >> choice;
+		switch (choice) {
+		case 1: StartGame(); PlayGame(); break;
+		case 2: {
+			string name; cout << "Filename: "; cin >> name;
+			LoadGame(name); PlayGame(); break;
+		}
+		case 3: exit(0);
+		}
+	}
+}
+
+//Use a loop to keep the user in the program.
+//After the game is finished (or Game Over), the program will return to the Main Menu instead of closing.
+int main() {
+	FixConsoleWindow();
+	MainMenu();
 	return 0;
 }
