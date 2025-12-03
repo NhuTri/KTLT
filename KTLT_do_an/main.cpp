@@ -489,10 +489,25 @@ void MainMenu() {
 		cout << "1. New Game\n2. Load Game\n3. Exit\n";
 		cout << "Your choice: "; cin >> choice;
 		switch (choice) {
-		case 1: StartGame(); PlayGame(); break;
+		case 1:
+			StartGame();
+			PlayGame();
+			break;
 		case 2: {
-			string name; cout << "Filename: "; cin >> name;
-			LoadGame(name); PlayGame(); break;
+			string filename;
+			cout << "Filename: ";
+			cin >> filename;
+			if (LoadGame(filename)) {
+				system("cls");
+				DrawBoard(0, 0, WIDTH_CONSOLE, HEIGH_CONSOLE);
+				STATE = 1;
+				PlayGame();
+			}
+			else {
+				cout << "\nLoad failed! Press any key to return to menu.";
+				_getch();
+			}
+			break;
 		}
 		case 3: exit(0);
 		}
